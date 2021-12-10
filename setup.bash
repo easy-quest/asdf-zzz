@@ -7,24 +7,24 @@ Usage:
 
 bash [--github | --gitlab] $0 PLUGIN_NAME TOOL_TEST GH_USER AUTHOR_NAME TOOL_GH TOOL_PAGE LICENSE
 
-All arguments are optional and will be interactively prompted when not given.
+Все аргументы необязательны и будут интерактивно подсказаны, когда не дано.
 
 PLUGIN_NAME.
-   A name for your new plugin always starting with \`asdf-\` prefix.
+   Имя для вашего нового плагина всегда начинается с \`asdf-\` prefix.
 
 TOOL_TEST.
-   A shell command used to test correct installation.
-   Normallly this command is something taking \`--version\` or \`--help\`.
+   Команда оболочки, используемая для проверки правильной установки.
+   Обычно эта команда - что-то принимает \`--version\` or \`--help\`.
 
 GH_USER.
-   Your GitHub/GitLab username.
+   Ваш GitHub/GitLab username.
 
 AUTHOR_NAME.
-   Your name, used for licensing.
+   Ваш name, used for licensing.
 
 TOOL_GH.
-   The tool's GitHub homepage. Default installation process will try to use
-   this to access GitHub releases.
+   Главная страница Github инструмента.Процесс установки по умолчанию постарается использовать
+   Это для доступа к выпускам GitHub.
 
 TOOL_PAGE.
    Documentation site for tool usage, mostly informative for users.
@@ -33,10 +33,10 @@ LICENSE.
    A license keyword.
    https://help.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository#searching-github-by-license-type
 "
-HELP_PLUGIN_NAME="Name for your plugin, starting with \`asdf-\`, eg. \`asdf-foo\`"
-HELP_TOOL_CHECK="Shell command for testing correct tool installation. eg. \`foo --version\` or \`foo --help\`"
-HELP_TOOL_REPO="The tool's GitHub homepage."
-HELP_TOOL_HOMEPAGE="The tool's documentation homepage if necessary."
+HELP_PLUGIN_NAME="Имя для вашего плагина, начиная с \`asdf-\`, eg. \`asdf-foo\`"
+HELP_TOOL_CHECK="Команда Shell для тестирования правильной установки инструмента. eg. \`foo --version\` or \`foo --help\`"
+HELP_TOOL_REPO="Домашняя страница Github инструмента."
+HELP_TOOL_HOMEPAGE="Домашняя страница документации инструмента при необходимости."
 
 ask_for() {
   local prompt="$1"
@@ -80,8 +80,8 @@ test_url() {
 ask_license() {
   local license keyword
 
-  printf "%s\n" "Please choose a LICENSE keyword." >&2
-  printf "%s\n" "See available license keywords at" >&2
+  printf "%s\n" "Пожалуйста, выберите лицензионное ключевое слово." >&2
+  printf "%s\n" "Смотрите доступные ключевые слова лицензии на" >&2
   printf "%s\n" "https://help.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository#searching-github-by-license-type" >&2
 
   while true; do
@@ -92,7 +92,7 @@ ask_license() {
     if test_url "$url"; then
       break
     else
-      printf "Invalid license keyword: %s\n" "$license"
+      printf "Неверная лицензия ключевого слова: %s\n" "$license"
     fi
   done
 
@@ -118,7 +118,7 @@ setup_github() {
   cwd="$PWD"
   out="$cwd/out"
 
-  # ask for arguments not given via CLI
+  # Попросите аргументы, не данные через CLI
   tool_name="${1:-$(ask_for "$HELP_PLUGIN_NAME")}"
   tool_name="${tool_name/asdf-/}"
   check_command="${2:-$(ask_for "$HELP_TOOL_CHECK" "$tool_name --help")}"
@@ -145,23 +145,23 @@ $tool_name github:   $tool_repo
 $tool_name docs:     $tool_homepage
 $tool_name test:     \`$check_command\`
 
-After confirmation, the \`$primary_branch\` will be replaced with the generated
-template using the above information. Please ensure all seems correct.
+После подтверждения, \`$primary_branch\` будет заменен сгенерированным
+Шаблон с использованием вышеуказанной информации.Пожалуйста, убедитесь, что все кажется правильным.
 EOF
 
   ok="${8:-$(ask_for "Type \`yes\` if you want to continue.")}"
   if [ "yes" != "$ok" ]; then
-    printf "Nothing done.\n"
+    printf "Ничего не сделало.\n"
   else
     (
       set -e
-      # previous cleanup to ensure we can run this program many times
+      # Предыдущая очистка, чтобы убедиться, что мы можем запустить эту программу много раз
       git branch template 2>/dev/null || true
       git checkout -f template
       git worktree remove -f out 2>/dev/null || true
       git branch -D out 2>/dev/null || true
 
-      # checkout a new worktree and replace placeholders there
+      # Оформить заказ новый работник и замените там заполнителей
       git worktree add --detach out
 
       cd "$out"
@@ -181,9 +181,9 @@ EOF
       set_placeholder "<PRIMARY BRANCH>" "$primary_branch" "$out"
 
       git add "$out"
-      # remove GitLab specific files
+      # Удалить файлы GitLab
       git rm -rf "$out/.gitlab" "$out/.gitlab-ci.yml" "$out/README-gitlab.md" "$out/contributing-gitlab.md"
-      # rename GitHub specific files to final filenames
+      # Переименуйте конкретные файлы GitHub в окончательные имена файлов
       git mv "$out/README-github.md" "$out/README.md"
       git mv "$out/contributing-github.md" "$out/contributing.md"
       git commit -m "Generate asdf-$tool_name plugin from template."
@@ -193,11 +193,11 @@ EOF
       git worktree remove -f out
       git checkout -f "$primary_branch"
 
-      printf "All done.\n"
-      printf "Your %s branch has been reset to an initial commit.\n" "$primary_branch"
-      printf "Push to origin/%s with \`git push --force-with-lease\`\n" "$primary_branch"
+      printf "Все сделано.\n"
+      printf "Ваш %s ветвь была сброшена в первоначальный коммит.\n" "$primary_branch"
+      printf "Нажать на происхождение/%s с участием \`git push --force-with-lease\`\n" "$primary_branch"
 
-      printf "Review these TODO items:\n"
+      printf "Обзор об этом TODO Предметы:\n"
       git grep -P -n -C 3 "TODO"
     ) || cd "$cwd"
   fi
@@ -237,13 +237,13 @@ $tool_name github:   $tool_repo
 $tool_name docs:     $tool_homepage
 $tool_name test:     \`$check_command\`
 
-After confirmation, the \`$primary_branch\` will be replaced with the generated
-template using the above information. Please ensure all seems correct.
+После подтверждения, \`$primary_branch\` будет заменен сгенерированным
+Шаблон с использованием вышеуказанной информации.Пожалуйста, убедитесь, что все кажется правильным.
 EOF
 
-  ok="${8:-$(ask_for "Type \`yes\` if you want to continue.")}"
+  ok="${8:-$(ask_for "Нажмите \`yes\` Если вы хотите продолжить.")}"
   if [ "yes" != "$ok" ]; then
-    printf "Nothing done.\n"
+    printf "Ничего не сделало.\n"
   else
     (
       set -e
@@ -285,11 +285,11 @@ EOF
       git worktree remove -f out
       git checkout -f "$primary_branch"
 
-      printf "All done.\n"
-      printf "Your %s branch has been reset to an initial commit.\n" "$primary_branch"
-      printf "You might want to push using \`--force-with-lease\` to origin/%s\n" "$primary_branch"
+      printf "Все сделано.\n"
+      printf "Ваш %s ветвь была сброшена в первоначальный коммит.\n" "$primary_branch"
+      printf "Возможно, вы захотите нажать \`--force-with-lease\` to origin/%s\n" "$primary_branch"
 
-      printf "Showing pending TODO tags that you might want to review\n"
+      printf "Показывая ожидающие теги TODO, которые вы можете просмотреть\n"
       git grep -P -n -C 3 "TODO"
     ) || cd "$cwd"
   fi
